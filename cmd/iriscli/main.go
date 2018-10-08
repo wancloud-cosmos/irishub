@@ -2,8 +2,6 @@ package main
 
 import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/irisnet/irishub/app"
 	"github.com/irisnet/irishub/client"
@@ -18,6 +16,8 @@ import (
 	upgradecmd "github.com/irisnet/irishub/client/upgrade/cli"
 
 	"github.com/irisnet/irishub/version"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/cli"
 )
 
 // rootCmd is the entry point for this binary
@@ -126,32 +126,14 @@ func main() {
 	upgradeCmd.AddCommand(
 		client.GetCommands(
 			upgradecmd.GetInfoCmd("upgrade", cdc),
+			upgradecmd.GetCmdQuerySwitch("upgrade", cdc),
+		)...)
+	upgradeCmd.AddCommand(
+		client.PostCommands(
+			upgradecmd.GetCmdSubmitSwitch(cdc),
 		)...)
 	rootCmd.AddCommand(
 		upgradeCmd,
-	)
-
-	recordCmd := &cobra.Command{
-		Use:   "record",
-		Short: "Record subcommands",
-	}
-
-	recordCmd.AddCommand(
-		recordcmd.GetCmdQureyHash(cdc),
-	)
-
-	recordCmd.AddCommand(
-		client.GetCommands(
-			recordcmd.GetCmdDownload(cdc),
-		)...)
-
-	recordCmd.AddCommand(
-		client.PostCommands(
-			recordcmd.GetCmdSubmit(cdc),
-		)...)
-
-	rootCmd.AddCommand(
-		recordCmd,
 	)
 
 	//Add auth and bank commands
@@ -169,6 +151,44 @@ func main() {
 		client.LineBreak,
 		keyscmd.Commands(),
 		version.ServeVersionCommand(cdc),
+	)
+
+	//Add auth and bank commands
+	rootCmd.AddCommand(
+		client.GetCommands(
+			authcmd.GetAccountCmd("acc", cdc, authcmd.GetAccountDecoder(cdc)),
+		)...)
+	rootCmd.AddCommand(
+		client.PostCommands(
+			bankcmd.SendTxCmd(cdc),
+		)...)
+
+	// add proxy, version and key info
+	rootCmd.AddCommand(
+		client.LineBreak,
+		keyscmd.Commands(),
+		version.ServeVersionCommand(cdc),
+	)
+
+	//add record command
+	recordCmd := &cobra.Command{
+		Use:   "record",
+		Short: "Record subcommands",
+	}
+
+	recordCmd.AddCommand(
+		client.GetCommands(
+			recordcmd.GetCmdQureyHash(cdc),
+			recordcmd.GetCmdDownload(cdc),
+		)...)
+
+	// recordCmd.AddCommand(
+	// 	client.PostCommands(
+	// 		recordcmd.GetCmdSubmitFileProposal(cdc),
+	// 	)...)
+
+	rootCmd.AddCommand(
+		recordCmd,
 	)
 
 	// prepare and add flags
