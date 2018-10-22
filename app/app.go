@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/wire"
@@ -17,10 +21,11 @@ import (
 	"github.com/irisnet/irishub/modules/gov"
 	"github.com/irisnet/irishub/modules/gov/params"
 	"github.com/irisnet/irishub/modules/iparam"
+	"github.com/irisnet/irishub/modules/iservice"
 	"github.com/irisnet/irishub/modules/record"
+	"github.com/irisnet/irishub/modules/record/params"
 	"github.com/irisnet/irishub/modules/upgrade"
 	"github.com/irisnet/irishub/modules/upgrade/params"
-	"github.com/irisnet/irishub/modules/iservice"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	bc "github.com/tendermint/tendermint/blockchain"
@@ -31,9 +36,6 @@ import (
 	"github.com/tendermint/tendermint/node"
 	sm "github.com/tendermint/tendermint/state"
 	tmtypes "github.com/tendermint/tendermint/types"
-	"io"
-	"os"
-	"strings"
 )
 
 const (
@@ -172,11 +174,13 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptio
 		&govparams.TallyingProcedureParameter,
 		&upgradeparams.CurrentUpgradeProposalIdParameter,
 		&upgradeparams.ProposalAcceptHeightParameter,
-		&upgradeparams.SwitchPeriodParameter)
+		&upgradeparams.SwitchPeriodParameter,
+		&recordparams.UploadLimitChangingProcedureParameter)
 
 	iparam.RegisterGovParamMapping(&govparams.DepositProcedureParameter,
 		&govparams.VotingProcedureParameter,
-		&govparams.TallyingProcedureParameter)
+		&govparams.TallyingProcedureParameter,
+		&recordparams.UploadLimitChangingProcedureParameter)
 
 	return app
 }
@@ -255,6 +259,8 @@ func (app *IrisApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.StakeData)
 
 	upgrade.InitGenesis(ctx, app.upgradeKeeper, app.Router(), genesisState.UpgradeData)
+
+	record.InitGenesis(ctx, app.govKeeper)
 
 	return abci.ResponseInitChain{
 		Validators: validators,

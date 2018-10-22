@@ -15,6 +15,7 @@ import (
 	"github.com/irisnet/irishub/client/context"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/modules/record"
+	"github.com/irisnet/irishub/modules/record/params"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -45,8 +46,8 @@ func GetCmdSubmitFile(storeName string, cdc *wire.Codec) *cobra.Command {
 			// --onchain-data has a high priority over --file-path
 			if len(onchainData) != 0 {
 				dataSize = int64(binary.Size([]byte(onchainData)))
-				if dataSize >= record.UploadLimitOfOnchain {
-					fmt.Printf("File %s is too large, upload limit is %d bytes.\n", filePath, record.UploadLimitOfOnchain)
+				if dataSize >= recordparams.UploadLimitOfOnchain {
+					fmt.Printf("File %s is too large, upload limit is %d bytes.\n", filePath, recordparams.UploadLimitOfOnchain)
 					return err
 				}
 				sum := sha256.Sum256([]byte(onchainData))
@@ -59,8 +60,8 @@ func GetCmdSubmitFile(storeName string, cdc *wire.Codec) *cobra.Command {
 				}
 
 				dataSize = fileInfo.Size()
-				if dataSize >= record.UploadLimitOfIpfs {
-					fmt.Printf("File %s is too large, upload limit is %d bytes.\n", filePath, record.UploadLimitOfIpfs)
+				if dataSize >= recordparams.UploadLimitOfIpfs {
+					fmt.Printf("File %s is too large, upload limit is %d bytes.\n", filePath, recordparams.UploadLimitOfIpfs)
 					return err
 				}
 

@@ -15,6 +15,7 @@ import (
 	"github.com/irisnet/irishub/client/context"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/modules/record"
+	"github.com/irisnet/irishub/modules/record/params"
 )
 
 type postRecordReq struct {
@@ -55,9 +56,9 @@ func postRecordHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.Handle
 		// --onchain-data has a high priority over --file-path
 		if len(onchainData) != 0 {
 			dataSize = int64(binary.Size([]byte(onchainData)))
-			if dataSize >= record.UploadLimitOfIpfs {
+			if dataSize >= recordparams.UploadLimitOfIpfs {
 				utils.WriteErrorResponse(w, http.StatusBadRequest,
-					fmt.Sprintf("Upload data is too large, max supported data size is %d", record.UploadLimitOfIpfs))
+					fmt.Sprintf("Upload data is too large, max supported data size is %d", recordparams.UploadLimitOfIpfs))
 				return
 			}
 
@@ -72,9 +73,9 @@ func postRecordHandlerFn(cdc *wire.Codec, cliCtx context.CLIContext) http.Handle
 			}
 
 			dataSize = fileInfo.Size()
-			if dataSize >= record.UploadLimitOfIpfs {
+			if dataSize >= recordparams.UploadLimitOfIpfs {
 				utils.WriteErrorResponse(w, http.StatusBadRequest,
-					fmt.Sprintf("Upload data is too large, max supported data size is %d", record.UploadLimitOfIpfs))
+					fmt.Sprintf("Upload data is too large, max supported data size is %d", recordparams.UploadLimitOfIpfs))
 				return
 			}
 

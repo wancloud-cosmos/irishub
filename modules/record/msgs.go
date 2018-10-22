@@ -9,11 +9,6 @@ import (
 // name to idetify transaction types
 const MsgType = "record"
 
-const (
-	UploadLimitOfOnchain = 1024        //upload limit on chain in bytes(1K currently)
-	UploadLimitOfIpfs    = 1024 * 1024 //upload limit on chain in bytes(1M currently)
-)
-
 //-----------------------------------------------------------
 // MsgSubmitRecord
 type MsgSubmitRecord struct {

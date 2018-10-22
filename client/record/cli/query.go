@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/cosmos/cosmos-sdk/wire"
 	"github.com/irisnet/irishub/client/context"
@@ -11,6 +12,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	recordClient "github.com/irisnet/irishub/client/record"
+	"github.com/irisnet/irishub/modules/record/params"
 )
 
 type RecordMetadata struct {
@@ -29,6 +31,13 @@ func GetCmdQureyRecord(storeName string, cdc *wire.Codec) *cobra.Command {
 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			recordID := viper.GetString(flagRecordID)
+
+			para, _ := cliCtx.QueryStore([]byte(recordparams.UploadLimitChangingProcedureParameter.GetStoreKey()), "params")
+			var limits recordparams.UploadLimitChangingProcedure
+			cdc.MustUnmarshalBinary(para, &limits)
+			fmt.Printf("####UploadLimitOnchain : %d", limits.UploadLimitOnchain)
+			fmt.Printf("####UploadLimitIpfs : %d", limits.UploadLimitIpfs)
+			os.Exit(1)
 
 			res, err := cliCtx.QueryStore([]byte(recordID), storeName)
 			if len(res) == 0 || err != nil {
